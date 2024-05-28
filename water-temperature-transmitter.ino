@@ -2,17 +2,11 @@
 #include <SoftwareSerial.h>
 #include "config.h"
 
-const int ledPin = LED_BUILTIN;
-
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 
+SoftwareSerial stoveSensorSerial(RX_PIN, TX_PIN);
 WiFiServer server(80);
-
-const int D1Pin = 5; // GPIO 5
-const int D2Pin = 4; // GPIO 4
-
-SoftwareSerial stoveSensorSerial(D1Pin, D2Pin);
 
 void setup() {
   Serial.begin(9600);
