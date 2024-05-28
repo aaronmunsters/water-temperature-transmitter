@@ -13,6 +13,7 @@
 #define JSON_BODY_BUFF_SIZE 1000
 #define QUEUE_BUFFER_SIZE 2056
 #define MEASURES_AS_STRING_BUFFER_SIZE 1000
+#define MEASUREMENT_PRECISION 1
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
@@ -71,48 +72,52 @@ float getTemperature(SensorMeasurement *measurement) {
   return static_cast<float>(measurement->temperature) / 10.0f;
 }
 
-void write_measures_as_string(char *measures_string_buffer) {
+String measure_as_string(SensorMeasurement *measurement) {
+  String result = "";
+  result.concat("{");
+  result.concat("\"epoch\":");
+  result.concat(measurement->timestamp);
+  result.concat(",");
+  result.concat("\"measure\":");
+  result.concat(getTemperature(measurement));
+  result.concat("}");
+  return result;
+}
+
+String measures_as_string() {
   SensorMeasurement sensorMeasurement;
-  char *last_to_write_offset = measures_string_buffer;
-  int written_total = 0;
+  String total = "";
+  
+  if (!measurements.isEmpty()) {
+    measurements.pop(&sensorMeasurement);
+    total += measure_as_string(&sensorMeasurement);
+    measurementsHandled.push(&sensorMeasurement);
+  }
 
   // For as long as the queue contains measurements, add to buffer
   while (!measurements.isEmpty()) {
     measurements.pop(&sensorMeasurement);
-    int charactersWritten = snprintf(
-      last_to_write_offset,
-      MEASURES_AS_STRING_BUFFER_SIZE - written_total,
-      "{\"epoch\":%d,\"measure\":%f},",
-      sensorMeasurement.timestamp,
-      getTemperature(&sensorMeasurement)
-    );
-    last_to_write_offset += charactersWritten;
-    written_total += charactersWritten;
+    total += ",";
+    total += measure_as_string(&sensorMeasurement);
     measurementsHandled.push(&sensorMeasurement);
   }
-
-  // If at least one character was written
-  if (written_total > 0)
-    // Shift string terminator one to left (removing trailing `,`)
-    *(last_to_write_offset - 1) = '\0';
 
   // return all from `measurementsHandled` to `measurements`
   while (! measurementsHandled.isEmpty()) {
     measurementsHandled.pop(&sensorMeasurement);
     measurements.push(&sensorMeasurement);
   }
+
+  return total;
 }
 
 void replyLastMeasures() {
-  char json_body[JSON_BODY_BUFF_SIZE];
-  char measures_as_string[MEASURES_AS_STRING_BUFFER_SIZE];
-  write_measures_as_string(measures_as_string);
-  snprintf(json_body, JSON_BODY_BUFF_SIZE,
-  "{\
-    \"epoch-offset-hours\": %d,\
-    \"lastmeasures\": [\
-    %s\
-  ]}", OFFSET_HOURS, measures_as_string);
+  String json_body = "";
+  json_body.concat("{\"epoch-offset-hours\":");
+  json_body.concat(OFFSET_HOURS);
+  json_body.concat(",\"lastmeasures\": [");
+  json_body.concat(measures_as_string());
+  json_body.concat("]}");
   server.send(200, "application/json", json_body);
 }
 
@@ -127,9 +132,9 @@ void checkNewMeasures() {
   }
 
   // TODO:
-  // check of er een nieuwe meting is
-  // check of die meting verschillend is!
-  // zoja, steek in de queue
+  // check if there is a new measurement
+  // check if this is any different from the previous
+  // if so, push to queue
 
   // time in seconds since Jan. 1, 1970 (+ offset)
   unsigned long epochTime = timeClient.getEpochTime();
