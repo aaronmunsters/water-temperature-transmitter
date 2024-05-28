@@ -11,12 +11,8 @@ const char* password = WIFI_PASSWORD;
 SoftwareSerial stoveSensorSerial(RX_PIN, TX_PIN);
 WiFiServer server(80);
 
-void setup() {
-  Serial.begin(9600);
-  stoveSensorSerial.begin(1200);
-  
+void connectWifi() {
   // Connect to WiFi network
-  Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -25,15 +21,21 @@ void setup() {
     delay(500);
   }
   Serial.println("Connected to WiFi");
+  // Print the IP address
+  Serial.print("Local IP address: ");
+  Serial.print(WiFi.localIP());
+  Serial.println();
+}
+
+void setup() {
+  Serial.begin(9600);
+  stoveSensorSerial.begin(1200);
+  
+  // Connect to WiFi
+  connectWifi();
 
   // Start the server
   server.begin();
-
-  // Print the IP address
-  Serial.print("Use this URL to connect: ");
-  Serial.print("http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("/");
 }
 
 void loop() {

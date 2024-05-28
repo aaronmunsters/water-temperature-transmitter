@@ -20,5 +20,7 @@ cp config.h.example config.h
 # Libraries used
 
 * [SoftwareSerial Library][software-serial-library]: to communicate with the sensor data.
+* [WiFi Library][wifi-library]: to communicate with the local network.
 
 [software-serial-library]: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
+[wifi-library]: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
