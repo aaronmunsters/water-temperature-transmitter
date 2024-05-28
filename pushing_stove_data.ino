@@ -1,11 +1,11 @@
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
+#include "config.h"
 
 const int ledPin = LED_BUILTIN;
 
-// Replace with your network credentials
-const char* ssid = "REDACTED";
-const char* password = "REDACTED";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
 
 WiFiServer server(80);
 
