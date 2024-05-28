@@ -1,6 +1,9 @@
-#include <ESP8266WiFi.h>
-#include <SoftwareSerial.h>
 #include "config.h"
+#include <SoftwareSerial.h>
+
+#if defined(ESP8266)
+  #include <ESP8266WiFi.h>
+#endif
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
