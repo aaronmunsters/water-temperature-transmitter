@@ -67,37 +67,34 @@ void connectWifi() {
   Serial.println();
 }
 
-write_measures_as_string(char *measures_string_buffer) {
-  int amount_of_measurements = measurements.getCount();
-  char *last_written_offset = measures_string_buffer;
-  int written_total = 0;
+float getTemperature(SensorMeasurement *measurement) {
+  return static_cast<float>(measurement->temperature) / 10.0f;
+}
+
+void write_measures_as_string(char *measures_string_buffer) {
   SensorMeasurement sensorMeasurement;
+  char *last_to_write_offset = measures_string_buffer;
+  int written_total = 0;
 
-  measurements.pop(&sensorMeasurement);
-  int charactersWritten = snprintf(
-    last_written_offset,
-    MEASURES_AS_STRING_BUFFER_SIZE - written_total,
-    "{\"epoch\":%d,\"measure\":%d}",
-    sensorMeasurement.timestamp,
-    sensorMeasurement.temperature
-  );
-  last_written_offset += charactersWritten;
-  written_total += charactersWritten;
-  measurementsHandled.push(&sensorMeasurement);
-
-  for (int i = 1; i < amount_of_measurements; i++) {
+  // For as long as the queue contains measurements, add to buffer
+  while (!measurements.isEmpty()) {
     measurements.pop(&sensorMeasurement);
     int charactersWritten = snprintf(
-      last_written_offset,
+      last_to_write_offset,
       MEASURES_AS_STRING_BUFFER_SIZE - written_total,
-      ",{\"epoch\":%d,\"measure\":%d}",
+      "{\"epoch\":%d,\"measure\":%f},",
       sensorMeasurement.timestamp,
-      sensorMeasurement.temperature
+      getTemperature(&sensorMeasurement)
     );
-    last_written_offset += charactersWritten;
+    last_to_write_offset += charactersWritten;
     written_total += charactersWritten;
     measurementsHandled.push(&sensorMeasurement);
   }
+
+  // If at least one character was written
+  if (written_total > 0)
+    // Shift string terminator one to left (removing trailing `,`)
+    *(last_to_write_offset - 1) = '\0';
 
   // return all from `measurementsHandled` to `measurements`
   while (! measurementsHandled.isEmpty()) {
@@ -117,6 +114,25 @@ void replyLastMeasures() {
     %s\
   ]}", OFFSET_HOURS, measures_as_string);
   server.send(200, "application/json", json_body);
+}
+
+void checkNewMeasures() {
+  if (stoveSensorSerial.available()) {
+    String data = "";
+    while (stoveSensorSerial.available()) {
+      char c = stoveSensorSerial.read();
+      data += c;
+    }
+    // TODO: write to queue
+  }
+
+  // TODO:
+  // check of er een nieuwe meting is
+  // check of die meting verschillend is!
+  // zoja, steek in de queue
+
+  // time in seconds since Jan. 1, 1970 (+ offset)
+  unsigned long epochTime = timeClient.getEpochTime();
 }
 
 void setup() {
@@ -140,16 +156,9 @@ void setup() {
   // Start the server
   server.begin();
 }
+
 void loop() {
   timeClient.update();
   server.handleClient();
-  // Removed old code, not really interested ...
-  delay(50);
-  // TODO:
-  // check of er een nieuwe meting is
-  // check of die meting verschillend is!
-  // zoja, steek in de queue
-
-  // time in seconds since Jan. 1, 1970 (+ offset)
-  unsigned long epochTime = timeClient.getEpochTime();
+  checkNewMeasures();
 }
