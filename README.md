@@ -16,3 +16,9 @@ cp config.h.example config.h
 ```
 
 3. Save the file and proceed with uploading the code to your Arduino.
+
+# Libraries used
+
+* [SoftwareSerial Library][software-serial-library]: to communicate with the sensor data.
+
+[software-serial-library]: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
