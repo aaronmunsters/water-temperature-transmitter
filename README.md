@@ -21,6 +21,12 @@ cp config.h.example config.h
 
 * [SoftwareSerial Library][software-serial-library]: to communicate with the sensor data.
 * [WiFi Library][wifi-library]: to communicate with the local network.
+* [Queue Library][queue-library]: to dedicate a queue to write measurements to
+* [NTP Library][ntp-library]: to determine the time of a measurement
+    * [WifiUDP library][wifiudp-library]: a dependency of NTP Library
 
 [software-serial-library]: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
 [wifi-library]: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
+[queue-library]: https://github.com/SMFSW/Queue
+[ntp-library]: https://github.com/arduino-libraries/NTPClient
+[wifiudp-library]: https://www.arduino.cc/reference/en/libraries/wifi/wifiudp/
