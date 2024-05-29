@@ -25,8 +25,14 @@ cp config.h.example config.h
 * [NTP Library][ntp-library]: to determine the time of a measurement
     * [WifiUDP library][wifiudp-library]: a dependency of NTP Library
 
+# TODO:
+- Correctly implement the use of the queue.
+    - The queue takes pointers, thus I should allocate them on the heap / preallocate suffucient memory
+- Enable OTA updates, perhaps using [ElegantOTA][elegant-ota-documentation]
+
 [software-serial-library]: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
 [wifi-library]: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
 [queue-library]: https://github.com/SMFSW/Queue
 [ntp-library]: https://github.com/arduino-libraries/NTPClient
 [wifiudp-library]: https://www.arduino.cc/reference/en/libraries/wifi/wifiudp/
+[elegant-ota-documentation]: https://elegantota.pro/
