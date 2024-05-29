@@ -8,12 +8,7 @@ Water Temperature Transmitter for Sensor Attached to Stove
 cp config.h.example config.h
 ```
 
-2. Open the config.h file and enter your WiFi SSID and password:
-
-```cpp
-#define WIFI_SSID "your-SSID-here"
-#define WIFI_PASSWORD "your-password-here"
-```
+2. Open the `config.h` file and enter your configuration details (e.g., WiFi SSID, WiFi password, ...)
 
 3. Save the file and proceed with uploading the code to your Arduino.
 
@@ -29,6 +24,9 @@ cp config.h.example config.h
 - Correctly implement the use of the queue.
     - The queue takes pointers, thus I should allocate them on the heap / preallocate suffucient memory
 - Enable OTA updates, perhaps using [ElegantOTA][elegant-ota-documentation]
+- Publish events to an MQTT broker, using [MQTT Client][mqtt-client-library]
+- Document the [TSM1000][tsm1000-web-page]
+   - Document the serial communication interface used to retrieve data (cfr. the [TSM1000 User manual][tsm1000-user-manual], Section 8, pg. 28 & 29)
 
 [software-serial-library]: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
 [wifi-library]: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
@@ -36,3 +34,6 @@ cp config.h.example config.h
 [ntp-library]: https://github.com/arduino-libraries/NTPClient
 [wifiudp-library]: https://www.arduino.cc/reference/en/libraries/wifi/wifiudp/
 [elegant-ota-documentation]: https://elegantota.pro/
+[mqtt-client-library]: https://www.arduino.cc/reference/en/libraries/mqtt-client/
+[tsm1000-web-page]: https://web.archive.org/web/20240529093135/https://www.h-tronic.de/en/Temperature-Controller-TSM-1000/1114470
+[tsm1000-user-manual]: https://web.archive.org/web/20240529091954/https://www.h-tronic.de/media/49/17/ef/1657552422/User%20manual.pdf
