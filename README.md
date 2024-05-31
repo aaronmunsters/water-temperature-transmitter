@@ -27,6 +27,9 @@ cp config.h.example config.h
 - Publish events to an MQTT broker, using [MQTT Client][mqtt-client-library]
 - Document the [TSM1000][tsm1000-web-page]
    - Document the serial communication interface used to retrieve data (cfr. the [TSM1000 User manual][tsm1000-user-manual], Section 8, pg. 28 & 29)
+- Shift to make use of [PlatformIO][platform-io-site] for development
+   - To develop [(unit) tests][platform-io-testing]
+   - Potentially to set up [CI/CD][platform-io-ci-cd]
 
 [software-serial-library]: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
 [wifi-library]: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
@@ -37,3 +40,6 @@ cp config.h.example config.h
 [mqtt-client-library]: https://www.arduino.cc/reference/en/libraries/mqtt-client/
 [tsm1000-web-page]: https://web.archive.org/web/20240529093135/https://www.h-tronic.de/en/Temperature-Controller-TSM-1000/1114470
 [tsm1000-user-manual]: https://web.archive.org/web/20240529091954/https://www.h-tronic.de/media/49/17/ef/1657552422/User%20manual.pdf
+[platform-io-site]: https://platformio.org/
+[platform-io-testing]: https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+[platform-io-ci-cd]: https://docs.platformio.org/en/latest/integration/ci/github-actions.html
