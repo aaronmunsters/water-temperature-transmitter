@@ -1,6 +1,6 @@
-#include "config.h"
+#include <Arduino.h>
+#include "Config.h"
 #include <SoftwareSerial.h>
-#include <cppQueue.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 
@@ -10,10 +10,6 @@
 #endif
 
 #define OFFSET_TIME_SECONDS (60 * 60 * OFFSET_HOURS) // 60 seconds, 60 minutes
-#define JSON_BODY_BUFF_SIZE 1000
-#define QUEUE_BUFFER_SIZE 2056
-#define MEASURES_AS_STRING_BUFFER_SIZE 1000
-#define MEASUREMENT_PRECISION 1
 
 const char *ssid = WIFI_SSID;
 const char *password = WIFI_PASSWORD;
@@ -21,34 +17,8 @@ const char *password = WIFI_PASSWORD;
 WiFiUDP ntpUDP;                                                                  // Define NTP Client to get time
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", OFFSET_TIME_SECONDS, 60000); // 0 for GMT offset, update interval of 60 seconds
 
-// Storing temperature of *C [-99, 850], stored as [-990, 8500]
-// so this fits in a `int16_t` which is [-32768, 32767]
-typedef struct sensorMeasurement
-{
-  unsigned long timestamp;
-  int16_t temperature;
-} SensorMeasurement;
-
-SensorMeasurement fakeMeasures[6] = {
-    {0x1, 0x1},
-    {0x2, 0x2},
-    {0x3, 0x3},
-    {0x4, 0x4},
-    {0x5, 0x5},
-    {0x6, 0x6},
-};
-
 SoftwareSerial stoveSensorSerial(RX_PIN, TX_PIN);
 ESP8266WebServer server(80);
-cppQueue measurements(
-    sizeof(SensorMeasurement),
-    QUEUE_BUFFER_SIZE,
-    LIFO);
-
-cppQueue measurementsHandled(
-    sizeof(SensorMeasurement),
-    QUEUE_BUFFER_SIZE,
-    LIFO);
 
 void connectWifi()
 {
@@ -66,66 +36,6 @@ void connectWifi()
   Serial.print("Local IP address: ");
   Serial.print(WiFi.localIP());
   Serial.println();
-}
-
-float getTemperature(SensorMeasurement *measurement)
-{
-  return static_cast<float>(measurement->temperature) / 10.0f;
-}
-
-String measure_as_string(SensorMeasurement *measurement)
-{
-  String result = "";
-  result.concat("{");
-  result.concat("\"epoch\":");
-  result.concat(measurement->timestamp);
-  result.concat(",");
-  result.concat("\"measure\":");
-  result.concat(getTemperature(measurement));
-  result.concat("}");
-  return result;
-}
-
-String measures_as_string()
-{
-  SensorMeasurement sensorMeasurement;
-  String total = "";
-
-  if (!measurements.isEmpty())
-  {
-    measurements.pop(&sensorMeasurement);
-    total += measure_as_string(&sensorMeasurement);
-    measurementsHandled.push(&sensorMeasurement);
-  }
-
-  // For as long as the queue contains measurements, add to buffer
-  while (!measurements.isEmpty())
-  {
-    measurements.pop(&sensorMeasurement);
-    total += ",";
-    total += measure_as_string(&sensorMeasurement);
-    measurementsHandled.push(&sensorMeasurement);
-  }
-
-  // return all from `measurementsHandled` to `measurements`
-  while (!measurementsHandled.isEmpty())
-  {
-    measurementsHandled.pop(&sensorMeasurement);
-    measurements.push(&sensorMeasurement);
-  }
-
-  return total;
-}
-
-void replyLastMeasures()
-{
-  String json_body = "";
-  json_body.concat("{\"epoch-offset-hours\":");
-  json_body.concat(OFFSET_HOURS);
-  json_body.concat(",\"lastmeasures\": [");
-  json_body.concat(measures_as_string());
-  json_body.concat("]}");
-  server.send(200, "application/json", json_body);
 }
 
 void checkNewMeasures()
@@ -150,16 +60,14 @@ void checkNewMeasures()
   unsigned long epochTime = timeClient.getEpochTime();
 }
 
+void replyLastMeasures()
+{
+  server.send(200, "application/json", "working on it ...");
+}
+
 void setup()
 {
   stoveSensorSerial.begin(1200);
-
-  // TODO: remove this empty test stuff
-  for (unsigned int i = 0; i < sizeof(fakeMeasures) / sizeof(SensorMeasurement); i++)
-  {
-    SensorMeasurement rec = fakeMeasures[i];
-    measurements.push(&rec);
-  }
 
   // Connect to WiFi
   connectWifi();
