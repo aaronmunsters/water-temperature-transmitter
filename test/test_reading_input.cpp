@@ -24,7 +24,7 @@ void tearDown(void)
 
 void mock_test()
 {
-    TEST_ASSERT_TRUE(1);
+    TEST_ASSERT_TRUE(0);
 }
 
 int main(int argc, char **argv)

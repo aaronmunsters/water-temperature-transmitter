@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 
-if [ ! -e ~/.platformio/penv/bin/pio ]
-then
-    echo "Please ensure PlatformIO is installed on your system"
-    exit 0
-else
-    echo "PlatformIO installation found!"
-fi
-
-pio=~/.platformio/penv/bin/pio
-
 echo -n '
 [env:uno]
 platform = atmelavr
@@ -29,7 +19,7 @@ test_testing_command =
     ${platformio.build_dir}/${this.__env__}/firmware.elf
 ' > platformio.ini
 LD_LIBRARY_PATH=~/.platformio/packages/tool-simavr/lib \
-${pio} test -v --without-uploading
+pio test -v --without-uploading
 
 echo -n "; Please visit documentation for the other options and examples
 ; https://docs.platformio.org/page/projectconf.html
