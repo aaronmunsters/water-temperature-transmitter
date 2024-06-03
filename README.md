@@ -21,6 +21,7 @@ cp config.h.example config.h
     * [WifiUDP library][wifiudp-library]: a dependency of NTP Library
 
 # TODO:
+- Use two different PlatformIO.ini files, one for building and one for CI/CD
 - Correctly implement the use of the queue.
     - The queue takes pointers, thus I should allocate them on the heap / preallocate suffucient memory
 - Enable OTA updates, perhaps using [ElegantOTA][elegant-ota-documentation]
